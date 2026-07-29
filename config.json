@@ -1,0 +1,30 @@
+{
+  "benchmark": "NIFTY50",
+  "top_n": 10,
+  "holding_days": 10,
+  "atr_period": 20,
+  "atr_stop_multiple": 2.5,
+  "minimum_price_inr": 50,
+  "minimum_median_traded_value_inr": 50000000,
+  "maximum_position_weight": 0.10,
+  "maximum_sector_weight": 0.25,
+  "risk_per_trade": 0.0075,
+  "maximum_gross_exposure": 1.0,
+  "round_trip_cost_bps": 35,
+  "signal_threshold": 80,
+  "regime": {
+    "index_above_sma200": true,
+    "sma50_above_sma200": true,
+    "breadth_minimum": 0.45
+  },
+  "weights": {
+    "mom_126_21_pct": 0.30,
+    "mom_252_21_pct": 0.25,
+    "mom_63_pct": 0.15,
+    "rs_20_pct": 0.10,
+    "rvol_20_pct": 0.10,
+    "liquidity_pct": 0.05,
+    "low_vol_pct": 0.05
+  }
+}
+
