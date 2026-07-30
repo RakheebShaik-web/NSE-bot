@@ -11,6 +11,11 @@ from india_leader_score import load_config, build_features, score_signals
 
 def backtest(panel: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
     features = build_features(panel, cfg["benchmark"])
+    return backtest_features(features, cfg)
+
+
+def backtest_features(features: pd.DataFrame, cfg: dict) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Run the execution model on already-computed, backward-looking features."""
     signals = score_signals(features, cfg)
     prices = features.set_index(["date", "ticker"]).sort_index()
     calendar = sorted(features["date"].unique())

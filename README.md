@@ -48,6 +48,7 @@ python -m pip install -r requirements.txt
 python fetch_yahoo.py --universe midsmall400 --start 2018-01-01
 python backtest.py --input data\yahoo_india_panel.csv
 python compare_caps.py --start 2018-01-01
+python optimize_strategy.py --input data\yahoo_midcap150_panel.csv
 ```
 
 The default `midsmall400` universe downloads the current official NIFTY
