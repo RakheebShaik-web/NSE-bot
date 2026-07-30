@@ -15,10 +15,14 @@ import pandas as pd
 import yfinance as yf
 
 PRICE_COLUMNS = ["Open", "High", "Low", "Close", "Volume"]
-MIDSMALL400_URL = (
-    "https://www.niftyindices.com/IndexConstituent/"
-    "ind_niftymidsmallcap400list.csv"
-)
+NSE_UNIVERSE_URLS = {
+    "nifty50": "ind_nifty50list.csv",
+    "next50": "ind_niftynext50list.csv",
+    "midcap150": "ind_niftymidcap150list.csv",
+    "smallcap250": "ind_niftysmallcap250list.csv",
+    "midsmall400": "ind_niftymidsmallcap400list.csv",
+    "nifty500": "ind_nifty500list.csv",
+}
 
 
 def yahoo_symbol(ticker: str) -> str:
@@ -68,8 +72,13 @@ def normalize_symbol_frame(
 
 
 def load_universe(path: str | Path) -> pd.DataFrame:
-    if str(path).lower() in {"midsmall400", "nifty-midsmallcap-400"}:
-        request = Request(MIDSMALL400_URL, headers={"User-Agent": "Mozilla/5.0"})
+    alias = str(path).lower().replace("-", "").replace("_", "")
+    if alias in NSE_UNIVERSE_URLS:
+        url = (
+            "https://www.niftyindices.com/IndexConstituent/"
+            f"{NSE_UNIVERSE_URLS[alias]}"
+        )
+        request = Request(url, headers={"User-Agent": "Mozilla/5.0"})
         with urlopen(request, timeout=30) as response:
             universe = pd.read_csv(io.BytesIO(response.read()))
         universe = universe.rename(
