@@ -38,6 +38,26 @@ python backtest.py --input path\to\india_panel.csv
 
 Outputs are written to `output/backtest`.
 
+### Yahoo Finance research data
+
+For development and backtesting, install the dependencies and build a daily
+adjusted NSE panel from Yahoo Finance:
+
+```powershell
+python -m pip install -r requirements.txt
+python fetch_yahoo.py --universe midsmall400 --start 2018-01-01
+python backtest.py --input data\yahoo_india_panel.csv
+```
+
+The default `midsmall400` universe downloads the current official NIFTY
+MidSmallcap 400 constituents (NIFTY Midcap 150 plus NIFTY Smallcap 250).
+`universe_nse.csv` remains available as a quick 20-stock smoke-test universe.
+Replace the current constituent list with dated, point-in-time membership
+before treating results as serious research.
+Yahoo is not used for live execution, and the generated data must not be
+redistributed. The downloader uses adjusted daily OHLC so splits and dividends
+do not create false momentum or returns.
+
 ## Dashboard
 
 The research dashboard source is in `dashboard/`. It includes the equity/P&L
