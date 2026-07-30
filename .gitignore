@@ -7,4 +7,6 @@ output/
 data/
 *.csv
 !examples/*.csv
+!dashboard-data/
+!dashboard-data/latest.json
 

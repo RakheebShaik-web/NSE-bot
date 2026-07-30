@@ -2,6 +2,7 @@
 from __future__ import annotations
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -98,6 +99,73 @@ def main():
             "cohort_sharpe": float(r.mean() / r.std() * np.sqrt(252 / cfg["holding_days"])) if r.std() else 0,
         })
     (out / "summary.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    # Stable cross-repository feed consumed by NSE-bot-dashboard on Vercel.
+    features = build_features(panel, cfg["benchmark"])
+    all_signals = score_signals(features, cfg).dropna(
+        subset=["close", "initial_stop", "leader_score_india"]
+    )
+    latest_signals = (
+        all_signals[all_signals["date"] == all_signals["date"].max()]
+        if not all_signals.empty else all_signals
+    )
+    yearly = []
+    if not equity.empty:
+        yearly_df = equity.copy()
+        yearly_df["year"] = pd.to_datetime(yearly_df["date"]).dt.year
+        for year, group in yearly_df.groupby("year"):
+            yearly.append({
+                "year": int(year),
+                "strategy_return": float((1 + group["return"]).prod() - 1),
+            })
+    feed = {
+        "schema_version": 1,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "source": "RakheebShaik-web/NSE-bot",
+        "status": "ready" if not equity.empty else "awaiting_data",
+        "summary": summary,
+        "equity": [
+            {"date": str(row.date)[:10], "value": float(row.equity)}
+            for row in equity.itertuples(index=False)
+        ],
+        "yearly": yearly,
+        "trades": [
+            {
+                "signal_date": str(row.signal_date)[:10],
+                "entry_date": str(row.entry_date)[:10],
+                "exit_date": str(row.exit_date)[:10],
+                "ticker": row.ticker,
+                "sector": row.sector,
+                "score": float(row.score),
+                "entry": float(row.entry),
+                "exit": float(row.exit),
+                "gross_return": float(row.gross_return),
+                "net_return": float(row.net_return),
+                "exit_reason": row.exit_reason,
+            }
+            for row in trades.itertuples(index=False)
+        ],
+        "signals": [
+            {
+                "date": str(row.date)[:10],
+                "ticker": row.ticker,
+                "sector": row.sector,
+                "score": float(row.leader_score_india),
+                "close": float(row.close),
+                "initial_stop": float(row.initial_stop),
+                "rank": int(row.rank),
+            }
+            for row in latest_signals.itertuples(index=False)
+        ],
+        "factors": [
+            {"name": name, "weight": float(weight)}
+            for name, weight in cfg["weights"].items()
+        ],
+    }
+    feed_path = Path(__file__).resolve().parent / "dashboard-data" / "latest.json"
+    feed_path.parent.mkdir(parents=True, exist_ok=True)
+    feed_path.write_text(json.dumps(feed, indent=2), encoding="utf-8")
+    print(f"Dashboard feed -> {feed_path}")
 
 
 if __name__ == "__main__":

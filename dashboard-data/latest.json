@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "generated_at": null,
+  "source": "RakheebShaik-web/NSE-bot",
+  "status": "awaiting_data",
+  "summary": {
+    "trades": 0
+  },
+  "equity": [],
+  "yearly": [],
+  "trades": [],
+  "signals": [],
+  "factors": []
+}
